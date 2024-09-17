@@ -1,12 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { ContentManagementService } from './content-management.service';
 
 @Controller()
 export class ContentManagementController {
-  constructor(private readonly contentManagementService: ContentManagementService) {}
+  constructor(
+    private readonly contentManagementService: ContentManagementService,
+  ) {}
 
-  @Get()
-  getHello(): string {
-    return this.contentManagementService.getHello();
+  @MessagePattern('blog_created')
+  async handleBlogCreated(blogPost: any) {
+    return this.contentManagementService.saveBlog(blogPost);
   }
 }

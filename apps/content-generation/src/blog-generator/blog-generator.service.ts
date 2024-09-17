@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import axios from 'axios';
 
 @Injectable()
@@ -14,17 +15,24 @@ export class BlogGeneratorService {
     'Business',
     'Art & Culture',
   ];
-  private usedCategories: string[] = [];
+  private currentCategoryIndex = 0;
+  private model;
 
   constructor(
     @Inject('CONTENT_MANAGEMENT_SERVICE') private readonly client: ClientProxy,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    const genAI = new GoogleGenerativeAI(
+      'AIzaSyAQNa7n3Co6LxhKCjG3hNNR5INEb-7dZ9A',
+    );
+    this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  }
 
-  //   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleCron() {
     const blogPost = await this.generateBlogPost();
     this.client.emit('blog_created', blogPost);
+    return blogPost;
   }
 
   async generateBlogPost() {
@@ -42,63 +50,63 @@ export class BlogGeneratorService {
   }
 
   getNextCategory() {
-    if (this.usedCategories.length === this.categories.length) {
-      // reset if all categories have been used
-      this.usedCategories = [];
-    }
-
-    // find the first unused category
-    const availableCategories = this.categories.filter(
-      (category) => !this.usedCategories.includes(category),
-    );
-    const nextCategory = availableCategories[0]; // select the first unused category
-
-    // mark this category as used
-    this.usedCategories.push(nextCategory);
-
-    return nextCategory;
+    const category = this.categories[this.currentCategoryIndex];
+    this.currentCategoryIndex =
+      (this.currentCategoryIndex + 1) % this.categories.length;
+    return category;
   }
 
   async generateTitle(category: string) {
-    const response = await axios.post(
-      'https://gemini-api-url/generate',
-      {
-        prompt: `Give me a creative blog title about ${category} that will attract readers' attention.`,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${this.configService.get('GEMINI_API_KEY')}`,
+    try {
+      const prompt = `Give me a creative blog title about ${category} that will attract readers' attention. return just a single short sentence title.`;
+      const result = await this.model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          maxOutputTokens: 50000,
+          temperature: 0.2,
         },
-      },
-    );
-
-    return response.data.title || 'Default Blog Title';
+      });
+      const title = result.response.text();
+      return title || 'Default Blog Title';
+    } catch (error) {
+      console.error('Error generating title:', error);
+      return 'Default Blog Title';
+    }
   }
 
   async generateContent(category: string, title: string) {
-    const response = await axios.post(
-      'https://gemini-api-url/generate',
-      {
-        prompt: `Write a long, professional blog post about ${category}. The title of the blog is "${title}". Make it simple and human-sounding.`,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${this.configService.get('GEMINI_API_KEY')}`,
+    try {
+      const prompt = `Write a long, long, long, very long, professional blog post about ${category}. The title of the blog is "${title}". Make it simple and human-sounding.`;
+      const result = await this.model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          maxOutputTokens: 50000,
+          temperature: 0.2,
         },
-      },
-    );
-
-    return response.data.content || 'Default blog content...';
+      });
+      const content = result.response.text();
+      return content || 'Default blog content...';
+    } catch (error) {
+      console.error('Error generating content:', error);
+      return 'Default blog content...';
+    }
   }
 
   async fetchImage(query: string) {
-    const response = await axios.get(`https://api.unsplash.com/photos/random`, {
-      params: {
-        query,
-        client_id: this.configService.get('UNSPLASH_API_KEY'),
-      },
-    });
-
-    return response.data.urls?.regular || 'default-image-url';
+    try {
+      const response = await axios.get(
+        `https://api.unsplash.com/photos/random`,
+        {
+          params: {
+            query,
+            client_id: 'RACJEMbqEpyn3bixXktez6N7ilIX9r9nQK-v0DGk6U8',
+          },
+        },
+      );
+      return response.data.urls?.regular || 'default-image-url';
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      return 'default-image-url';
+    }
   }
 }
