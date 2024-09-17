@@ -92,9 +92,7 @@ export class BlogGeneratorService {
                       6. Provide actionable tips or advice for readers.
                       7. Include a detailed conclusion summarizing key points and encouraging further exploration.
                       8. Aim for a word count of at least 1000 words.
-                      9. Don't write it in list or bullet listed manner unless it is very necessary. make it just sweet like a medium blog post that users will love.
-                      Make it informative, engaging, and valuable to readers. Consider current events and the date (${currentDate}) in your writing. 
-                      Ensure the content is fresh, not repetitive, and offers unique insights.`;
+                      9. Don't write it in list or bullet listed manner unless it is very necessary. make it just sweet like a medium blog post that users will love. Ensure the content is fresh, not repetitive, and offers unique insights.`;
 
       const result = await this.model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
