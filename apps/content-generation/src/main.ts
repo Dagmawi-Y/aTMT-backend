@@ -1,12 +1,14 @@
 import { NestFactory } from '@nestjs/core';
-import { ContentGenerationModule } from './content-generation.module';
-import { MicroserviceOptions } from '@nestjs/microservices';
+import { BlogGeneratorModule } from './blog-generator/blog-generator.module';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    ContentGenerationModule,
-    {},
+    BlogGeneratorModule,
+    {
+      transport: Transport.RMQ,
+    },
   );
-  await app.listen(3333);
+  await app.listen();
 }
 bootstrap();
