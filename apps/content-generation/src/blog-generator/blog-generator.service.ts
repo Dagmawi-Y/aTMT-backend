@@ -25,7 +25,7 @@ export class BlogGeneratorService {
     const genAI = new GoogleGenerativeAI(
       'AIzaSyAQNa7n3Co6LxhKCjG3hNNR5INEb-7dZ9A',
     );
-    this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -58,15 +58,19 @@ export class BlogGeneratorService {
 
   async generateTitle(category: string) {
     try {
-      const prompt = `Give me a creative blog title about ${category} that will attract readers' attention. return just a single short sentence title.`;
+      const currentDate = new Date().toISOString();
+      const prompt = `Generate a creative and unique blog title about ${category} that will attract readers' attention. 
+                      Make sure it's different from any previous titles. 
+                      Consider current trends and the date (${currentDate}) for inspiration. 
+                      Return just a single short sentence title.`;
       const result = await this.model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
-          maxOutputTokens: 50000,
+          maxOutputTokens: 1000,
           temperature: 0.2,
         },
       });
-      const title = result.response.text();
+      const title = result.response.text().trim();
       return title || 'Default Blog Title';
     } catch (error) {
       console.error('Error generating title:', error);
@@ -76,15 +80,32 @@ export class BlogGeneratorService {
 
   async generateContent(category: string, title: string) {
     try {
-      const prompt = `Write a long, long, long, very long, professional blog post about ${category}. The title of the blog is "${title}". Make it simple and human-sounding.`;
+      const currentDate = new Date().toISOString();
+      const prompt = `Write an extremely comprehensive, in-depth, and long blog post about ${category}. 
+                      The title of the blog is "${title}". 
+                      Follow these guidelines:
+                      1. Start with an engaging introduction.
+                      2. Divide the content into at least 5-7 main sections, each with 2-3 subsections.
+                      3. Include real-world examples, case studies, or data to support your points.
+                      4. Discuss current trends and future predictions related to the topic.
+                      5. Address common questions or misconceptions about the subject.
+                      6. Provide actionable tips or advice for readers.
+                      7. Include a detailed conclusion summarizing key points and encouraging further exploration.
+                      8. Aim for a word count of at least 1000 words.
+                      9. Don't write it in list or bullet listed manner unless it is very necessary. make it just sweet like a medium blog post that users will love.
+                      Make it informative, engaging, and valuable to readers. Consider current events and the date (${currentDate}) in your writing. 
+                      Ensure the content is fresh, not repetitive, and offers unique insights.`;
+
       const result = await this.model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
-          maxOutputTokens: 50000,
-          temperature: 0.2,
+          maxOutputTokens: 100000,
+          temperature: 0.7,
         },
       });
-      const content = result.response.text();
+
+      let content = result.response.text().trim();
+
       return content || 'Default blog content...';
     } catch (error) {
       console.error('Error generating content:', error);
