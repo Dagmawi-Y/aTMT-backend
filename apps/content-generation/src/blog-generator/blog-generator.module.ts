@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BlogGeneratorService } from './blog-generator.service';
 import { BlogGeneratorController } from './blog-generator.controller';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -19,6 +19,9 @@ import { ConfigService } from '@nestjs/config';
         },
       },
     ]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
   providers: [BlogGeneratorService, ConfigService],
   controllers: [BlogGeneratorController],
