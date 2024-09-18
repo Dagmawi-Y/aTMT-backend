@@ -23,7 +23,7 @@ export class BlogGeneratorService {
     private readonly configService: ConfigService,
   ) {
     const genAI = new GoogleGenerativeAI(
-      'AIzaSyAQNa7n3Co6LxhKCjG3hNNR5INEb-7dZ9A',
+      this.configService.get('GOOGLE_GEMINI_API_KEY'),
     );
     this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
   }
@@ -118,7 +118,7 @@ export class BlogGeneratorService {
         {
           params: {
             query,
-            client_id: 'RACJEMbqEpyn3bixXktez6N7ilIX9r9nQK-v0DGk6U8',
+            client_id: this.configService.get('UNSPLASH_ACCESS_KEY'),
           },
         },
       );
