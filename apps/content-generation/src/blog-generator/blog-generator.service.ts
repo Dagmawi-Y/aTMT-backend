@@ -18,7 +18,7 @@ export class BlogGeneratorService {
     @InjectModel(Category.name) private categoryModel: Model<Category>,
   ) {
     const genAI = new GoogleGenerativeAI(
-      this.configService.get<string>('GOOGLE_GEMINI_API_KEY'),
+      this.configService.get<string>('GEMINI_API_KEY'),
     );
     this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   }
@@ -76,10 +76,10 @@ export class BlogGeneratorService {
         },
       });
       const title = result.response.text().trim();
-      return title || `Interesting ${subCategory} in ${category}`;
+      return title;
     } catch (error) {
       console.error('Error generating title:', error);
-      return `Interesting ${subCategory} in ${category}`;
+      // return `Interesting ${subCategory} in ${category}`;
     }
   }
 
@@ -113,12 +113,10 @@ export class BlogGeneratorService {
 
       let content = result.response.text().trim();
 
-      return (
-        content || `Default blog content about ${subCategory} in ${category}...`
-      );
+      return content;
     } catch (error) {
       console.error('Error generating content:', error);
-      return `Default blog content about ${subCategory} in ${category}...`;
+      // return `Default blog content about ${subCategory} in ${category}...`;
     }
   }
 
@@ -129,14 +127,14 @@ export class BlogGeneratorService {
         {
           params: {
             query,
-            client_id: this.configService.get('UNSPLASH_ACCESS_KEY'),
+            client_id: this.configService.get('UNSPLASH_API_KEY'),
           },
         },
       );
-      return response.data.urls?.regular || 'default-image-url';
+      return response.data.urls?.regular;
     } catch (error) {
       console.error('Error fetching image:', error);
-      return 'default-image-url';
+      // return 'default-image-url';
     }
   }
 }
