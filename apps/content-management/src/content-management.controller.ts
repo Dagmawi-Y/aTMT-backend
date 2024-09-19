@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import {
   Ctx,
+  EventPattern,
   MessagePattern,
   Payload,
   RmqContext,
@@ -12,13 +13,18 @@ export class ContentManagementController {
   constructor(
     private readonly contentManagementService: ContentManagementService,
   ) {}
-
   // getBlog(@Payload() data: any, @Ctx() context: RmqContext) {
   //   console.log({ data });
   // }
-  @MessagePattern('blog_created')
-  async handleBlogCreated(blogPost: any) {
-    console.log('Got a new blog post:', blogPost);
+  @EventPattern('blog_created')
+  async handleBlogCreated(
+    @Payload() blogPost: any,
+    @Ctx() context: RmqContext,
+  ) {
+    // const channel = context.getChannelRef();
+    // const originalMsg = context.getMessage();
+    // channel.ack(originalMsg);
+    console.log(blogPost, '\nSaved the new blog post');
     return this.contentManagementService.saveBlog(blogPost);
   }
 }
