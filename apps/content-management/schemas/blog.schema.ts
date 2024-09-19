@@ -14,5 +14,4 @@ export interface Blog {
   content: string;
 }
 
-// BlogDocument will extend both Blog and Mongoose's Document
 export type BlogDocument = Blog & Document;
