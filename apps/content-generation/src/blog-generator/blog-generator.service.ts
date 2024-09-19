@@ -23,7 +23,7 @@ export class BlogGeneratorService {
     private readonly configService: ConfigService,
   ) {
     const genAI = new GoogleGenerativeAI(
-      this.configService.get('GOOGLE_GEMINI_API_KEY'),
+      this.configService.get<string>('GOOGLE_GEMINI_API_KEY'),
     );
     this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
   }
