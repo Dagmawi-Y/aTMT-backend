@@ -4,6 +4,7 @@ export const BlogSchema = new Schema({
   title: String,
   image: String,
   category: String,
+  subCategory: String,
   content: String,
 });
 
@@ -11,6 +12,7 @@ export interface Blog {
   title: string;
   image: string;
   category: string;
+  subCategory: string;
   content: string;
 }
 
