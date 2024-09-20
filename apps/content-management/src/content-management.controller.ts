@@ -1,4 +1,3 @@
-import { Controller } from '@nestjs/common';
 import {
   Ctx,
   EventPattern,
@@ -7,6 +6,17 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 import { ContentManagementService } from './content-management.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common';
+import { CreateBlogDto, UpdateBlogDto, BlogFilterDto } from './dto/blog.dto';
 
 @Controller()
 export class ContentManagementController {
@@ -24,7 +34,63 @@ export class ContentManagementController {
     // const channel = context.getChannelRef();
     // const originalMsg = context.getMessage();
     // channel.ack(originalMsg);
-    console.log(blogPost, '\nSaved the new blog post');
-    return this.contentManagementService.saveBlog(blogPost);
+    return this.contentManagementService.createBlog(blogPost);
+  }
+  @Post()
+  async createBlog(@Body() createBlogDto: CreateBlogDto) {
+    return this.contentManagementService.createBlog(createBlogDto);
+  }
+
+  @Get()
+  async getAllBlogs(@Query() filterDto: BlogFilterDto) {
+    return this.contentManagementService.getAllBlogs(filterDto);
+  }
+
+  @Get('search')
+  async searchBlogs(
+    @Query('q') query: string,
+    @Query() filterDto: BlogFilterDto,
+  ) {
+    return this.contentManagementService.searchBlogs(query, filterDto);
+  }
+
+  @Get(':id')
+  async getBlogById(@Param('id') id: string) {
+    return this.contentManagementService.getBlogById(id);
+  }
+
+  @Put(':id')
+  async updateBlog(
+    @Param('id') id: string,
+    @Body() updateBlogDto: UpdateBlogDto,
+  ) {
+    return this.contentManagementService.updateBlog(id, updateBlogDto);
+  }
+
+  @Delete(':id')
+  async deleteBlog(@Param('id') id: string) {
+    return this.contentManagementService.deleteBlog(id);
+  }
+
+  @Get('category/:category')
+  async getBlogsByCategory(
+    @Param('category') category: string,
+    @Query() filterDto: BlogFilterDto,
+  ) {
+    return this.contentManagementService.getBlogsByCategory(
+      category,
+      filterDto,
+    );
+  }
+
+  @Get('subcategory/:subcategory')
+  async getBlogsBySubCategory(
+    @Param('subcategory') subcategory: string,
+    @Query() filterDto: BlogFilterDto,
+  ) {
+    return this.contentManagementService.getBlogsBySubCategory(
+      subcategory,
+      filterDto,
+    );
   }
 }

@@ -18,7 +18,7 @@ export class BlogGeneratorService {
     @InjectModel(Category.name) private categoryModel: Model<Category>,
   ) {
     const genAI = new GoogleGenerativeAI(
-      this.configService.get<string>('GEMINI_API_KEY'),
+      this.configService.get<string>('GOOGLE_GEMINI_API_KEY'),
     );
     this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   }
@@ -127,7 +127,7 @@ export class BlogGeneratorService {
         {
           params: {
             query,
-            client_id: this.configService.get('UNSPLASH_API_KEY'),
+            client_id: this.configService.get('UNSPLASH_ACCESS_KEY'),
           },
         },
       );
