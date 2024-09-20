@@ -79,7 +79,6 @@ export class BlogGeneratorService {
       return title;
     } catch (error) {
       console.error('Error generating title:', error);
-      // return `Interesting ${subCategory} in ${category}`;
     }
   }
 
