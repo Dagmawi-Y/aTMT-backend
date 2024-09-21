@@ -41,6 +41,7 @@ export class BlogGeneratorService {
       await this.getRandomCategoryAndsubCategory();
     const title = await this.generateTitle(category, subCategory);
     const content = await this.generateContent(category, subCategory, title);
+    const imagePrompt = await this.generateImagePrompt(content);
     const image = await this.fetchImage(title);
 
     return {
@@ -82,9 +83,26 @@ export class BlogGeneratorService {
     }
   }
 
+  async generateImagePrompt(content: string) {
+    try {
+      const prompt = `Generate an image-generation prompt to give to limewire image generation model for the blog content that goes like this ${content.slice(0, 50)}`;
+      const result = await this.model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          maxOutputTokens: 50,
+          temperature: 1.5,
+        },
+      });
+      const imagePrompt = result.response.text().trim();
+      return imagePrompt;
+    } catch (error) {
+      console.error('Error generating image prompt:', error);
+    }
+  }
+
   async generateContent(category: string, subCategory: string, title: string) {
     try {
-      const prompt = `Write an extremely comprehensive, in-depth, and long blog post about "${title}" focusing on ${subCategory} within the ${category} category. 
+      const prompt = `Write an extremely comprehensive, in-depth, and long blog post about "${title}" focusing on ${subCategory} within the ${category} category. don't include the title in this blog post.
                       Follow these guidelines:
                       1. Start with an engaging introduction that hooks the reader.
                       2. Divide the content into at least 5-7 main sections, each with 2-3 subsections.
@@ -134,6 +152,32 @@ export class BlogGeneratorService {
     } catch (error) {
       console.error('Error fetching image:', error);
       // return 'default-image-url';
+    }
+  }
+
+  async generateImageForBlog() {
+    try {
+      const resp = await fetch(
+        `https://api.limewire.com/api/image/generation`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Version': 'v1',
+            Accept: 'application/json',
+            Authorization: `Bearer ${this.configService.get('LIMEWIRE_API_KEY')}`,
+          },
+          body: JSON.stringify({
+            prompt: 'A cute baby sea otter',
+            aspect_ratio: '1:1',
+          }),
+        },
+      );
+
+      const data = await resp.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error generating image for blog:', error);
     }
   }
 }
