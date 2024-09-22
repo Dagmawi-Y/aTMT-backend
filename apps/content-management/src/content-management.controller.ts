@@ -31,11 +31,12 @@ export class ContentManagementController {
     @Payload() blogPost: any,
     @Ctx() context: RmqContext,
   ) {
-    // const channel = context.getChannelRef();
-    // const originalMsg = context.getMessage();
-    // channel.ack(originalMsg);
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+    channel.ack(originalMsg);
     return this.contentManagementService.createBlog(blogPost);
   }
+
   @Post()
   async createBlog(@Body() createBlogDto: CreateBlogDto) {
     return this.contentManagementService.createBlog(createBlogDto);
@@ -44,6 +45,16 @@ export class ContentManagementController {
   @Get()
   async getAllBlogs(@Query() filterDto: BlogFilterDto) {
     return this.contentManagementService.getAllBlogs(filterDto);
+  }
+
+  @Get('categories')
+  async getCategories() {
+    return this.contentManagementService.getCategories();
+  }
+
+  @Get('subcategories')
+  async getSubCategories(@Query('category') category?: string) {
+    return this.contentManagementService.getSubCategories(category);
   }
 
   @Get('search')

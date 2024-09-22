@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ContentManagementModule } from './content-management.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { CategorySeeder } from './database/seeders/category-seeder';
 
 async function bootstrap() {
   const app = await NestFactory.create(ContentManagementModule);
@@ -16,6 +17,9 @@ async function bootstrap() {
       },
     },
   });
+
+  const seeder = app.get(CategorySeeder);
+  await seeder.seed();
 
   await app.startAllMicroservices();
 

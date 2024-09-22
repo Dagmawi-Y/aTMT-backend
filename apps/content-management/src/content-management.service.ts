@@ -3,11 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BlogDocument } from '../schemas/blog.schema';
 import { CreateBlogDto, UpdateBlogDto, BlogFilterDto } from './dto/blog.dto';
+import { Category } from '../schemas/category.schema';
 
 @Injectable()
 export class ContentManagementService {
   constructor(
     @InjectModel('Blog') private readonly blogModel: Model<BlogDocument>,
+    @InjectModel('Category') private readonly categoryModel: Model<Category>,
   ) {}
 
   private formatPaginationResult(
@@ -90,6 +92,17 @@ export class ContentManagementService {
     if (result.deletedCount === 0) {
       throw new NotFoundException('Blog not found');
     }
+  }
+
+  async getCategories(): Promise<any> {
+    const categories = await this.categoryModel.find();
+    return categories;
+  }
+
+  async getSubCategories(category?: string): Promise<string[]> {
+    const query = category ? { category } : {};
+    const subCategories = await this.blogModel.distinct('subCategory', query);
+    return subCategories;
   }
 
   async getBlogsByCategory(

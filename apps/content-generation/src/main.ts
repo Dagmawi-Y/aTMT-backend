@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { BlogGeneratorModule } from './blog-generator/blog-generator.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { CategorySeeder } from './database/seeders/category-seeder';
 
 async function bootstrap() {
   const app = await NestFactory.create(BlogGeneratorModule);
@@ -11,14 +10,12 @@ async function bootstrap() {
     options: {
       urls: ['amqp://localhost:5672'],
       queue: 'blog_queue',
+      noAck: false,
       queueOptions: {
         durable: false,
       },
     },
   });
-
-  const seeder = app.get(CategorySeeder);
-  await seeder.seed();
 
   // await app.startAllMicroservices();
 

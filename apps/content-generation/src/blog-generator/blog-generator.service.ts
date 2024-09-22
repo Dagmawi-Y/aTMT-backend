@@ -6,7 +6,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import axios from 'axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Category } from 'apps/content-generation/schemas/category.schema';
+import { Category } from 'apps/content-management/schemas/category.schema';
 
 @Injectable()
 export class BlogGeneratorService {

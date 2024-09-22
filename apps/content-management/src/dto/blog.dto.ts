@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, Min, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsIn, Min } from 'class-validator';
 
 export class CreateBlogDto {
   @IsString()

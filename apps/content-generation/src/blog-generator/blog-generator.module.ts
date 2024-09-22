@@ -4,16 +4,17 @@ import { BlogGeneratorService } from './blog-generator.service';
 import { BlogGeneratorController } from './blog-generator.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MongooseModule } from '@nestjs/mongoose';
 import {
   Category,
   CategorySchema,
-} from 'apps/content-generation/schemas/category.schema';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CategorySeeder } from '../database/seeders/category-seeder';
+} from 'apps/content-management/schemas/category.schema';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/content_management'),
+    // MongooseModule.forRoot('mongodb://localhost:27017/content_management'),
+    MongooseModule.forRoot('mongodb://mongo:27017/content_management'),
+
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -24,6 +25,7 @@ import { CategorySeeder } from '../database/seeders/category-seeder';
     MongooseModule.forFeature([
       { name: Category.name, schema: CategorySchema },
     ]),
+
     ClientsModule.register([
       {
         name: 'CONTENT_MANAGEMENT_SERVICE',
@@ -42,7 +44,7 @@ import { CategorySeeder } from '../database/seeders/category-seeder';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [BlogGeneratorService, ConfigService, CategorySeeder],
+  providers: [BlogGeneratorService, ConfigService],
   controllers: [BlogGeneratorController],
 })
 export class BlogGeneratorModule {}

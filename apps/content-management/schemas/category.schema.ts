@@ -6,6 +6,9 @@ export class Category extends Document {
   @Prop({ required: true, unique: true })
   name: string;
 
+  @Prop({ required: true, unique: true })
+  image: string;
+
   @Prop({ type: [String], required: true })
   subcategories: string[];
 }
