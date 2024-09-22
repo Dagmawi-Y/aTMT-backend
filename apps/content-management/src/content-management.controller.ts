@@ -31,10 +31,14 @@ export class ContentManagementController {
     @Payload() blogPost: any,
     @Ctx() context: RmqContext,
   ) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-    channel.ack(originalMsg);
-    return this.contentManagementService.createBlog(blogPost);
+    if (blogPost) {
+      const channel = context.getChannelRef();
+      const originalMsg = context.getMessage();
+      channel.ack(originalMsg);
+      return this.contentManagementService.createBlog(blogPost);
+    } else {
+      return { message: 'Blog generation failed. nothing saved in DB.' };
+    }
   }
 
   @Post()

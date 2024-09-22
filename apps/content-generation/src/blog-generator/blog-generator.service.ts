@@ -23,17 +23,44 @@ export class BlogGeneratorService {
     this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async handleCron() {
     console.log('Blog generation started...');
     try {
       const blogPost = await this.generateBlogPost();
-      this.client.emit('blog_created', blogPost);
-      console.log('Blog post created and sent to content management service');
-      return blogPost;
+
+      // Check if all required fields are present
+      if (this.isValidBlogPost(blogPost)) {
+        this.client.emit('blog_created', blogPost);
+        console.log('Blog post created and sent to content management service');
+        return blogPost;
+      } else {
+        console.log('Blog post generation incomplete. Rolling back.');
+        return null;
+      }
     } catch (error) {
       console.error('Error creating blog post:', error);
+      return null;
     }
+  }
+
+  private isValidBlogPost(blogPost: any): boolean {
+    const requiredFields = [
+      'title',
+      'image',
+      'category',
+      'subCategory',
+      'content',
+      'author',
+      'readDuration',
+      'authorAvatar',
+    ];
+    return requiredFields.every(
+      (field) =>
+        blogPost[field] !== undefined &&
+        blogPost[field] !== null &&
+        blogPost[field] !== '',
+    );
   }
 
   async generateBlogPost() {
@@ -43,6 +70,10 @@ export class BlogGeneratorService {
     const content = await this.generateContent(category, subCategory, title);
     const imagePrompt = await this.generateImagePrompt(content);
     const image = await this.fetchImage(title);
+    const author = 'AI';
+    const readDuration = '5min';
+    const authorAvatar =
+      'https://imagedelivery.net/xE-VtsYZUS2Y8MtLMcbXAg/4aba815b6bf1fe857b7a/orig';
 
     return {
       title,
@@ -50,6 +81,9 @@ export class BlogGeneratorService {
       category,
       subCategory,
       content,
+      author,
+      readDuration,
+      authorAvatar,
     };
   }
 

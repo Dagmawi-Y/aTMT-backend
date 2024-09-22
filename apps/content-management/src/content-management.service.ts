@@ -36,10 +36,14 @@ export class ContentManagementService {
   }
 
   async createBlog(createBlogDto: CreateBlogDto): Promise<BlogDocument> {
-    const createdBlog = new this.blogModel(createBlogDto);
-    const savedBlog = await createdBlog.save();
-    console.log(savedBlog, '\nSaved the new blog post to DB');
-    return savedBlog;
+    try {
+      const createdBlog = new this.blogModel(createBlogDto);
+      const savedBlog = await createdBlog.save();
+      console.log(savedBlog, '\nSaved the new blog post to DB');
+      return savedBlog;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getAllBlogs(filterDto: BlogFilterDto): Promise<any> {
@@ -95,8 +99,24 @@ export class ContentManagementService {
   }
 
   async getCategories(): Promise<any> {
-    const categories = await this.categoryModel.find();
-    return categories;
+    const categoriesWithBlogs = await this.categoryModel
+      .aggregate([
+        {
+          $lookup: {
+            from: 'blogs',
+            let: { categoryName: '$name' },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$category', '$$categoryName'] } } },
+              { $sort: { createdAt: -1 } },
+              { $limit: 5 },
+            ],
+            as: 'latestBlogs',
+          },
+        },
+      ])
+      .exec();
+
+    return categoriesWithBlogs;
   }
 
   async getSubCategories(category?: string): Promise<string[]> {

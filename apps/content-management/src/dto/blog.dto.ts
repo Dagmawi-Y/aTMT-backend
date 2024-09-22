@@ -15,6 +15,15 @@ export class CreateBlogDto {
 
   @IsString()
   content: string;
+
+  @IsString()
+  author: String;
+
+  @IsString()
+  readDuration: String;
+
+  @IsString()
+  authorAvatar: String;
 }
 
 export class UpdateBlogDto {

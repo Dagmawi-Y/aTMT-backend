@@ -12,8 +12,8 @@ import {
 
 @Module({
   imports: [
-    // MongooseModule.forRoot('mongodb://localhost:27017/content_management'),
-    MongooseModule.forRoot('mongodb://mongo:27017/content_management'),
+    MongooseModule.forRoot('mongodb://localhost:27017/content_management'),
+    // MongooseModule.forRoot('mongodb://mongo:27017/content_management'),
 
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
